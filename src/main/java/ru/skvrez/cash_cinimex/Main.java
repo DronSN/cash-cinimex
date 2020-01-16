@@ -10,10 +10,13 @@ public class Main {
 		String message4 = "44444444";
 		Cashable<String> cash = new MapCash<>();
 		cash.putObject(message1);
-		Thread.sleep(1000);
+		Thread.sleep(1);
 		cash.putObject(message2);
+		Thread.sleep(1);
 		cash.putObject(message3);
+		Thread.sleep(1);
 		cash.putObject(message4);
+		Thread.sleep(1);
 		System.out.println(cash.getObject(new CashQueryParameters(false)));
 
 	}
