@@ -8,7 +8,15 @@ import java.util.Optional;
 public class MapCash<T> extends AbstractCash<T> {
 
 	private Map<T, Long> objectsList = new HashMap<>();
-	
+
+	public MapCash(){
+		super();
+	}
+
+	public MapCash(long time, TimeUnits units){
+		super(time, units);
+	}
+
 	@Override
 	public void putObject(T object) {
         updateCurrentTime();

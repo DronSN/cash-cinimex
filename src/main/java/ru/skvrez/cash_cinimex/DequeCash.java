@@ -7,7 +7,15 @@ import java.util.Optional;
 public class DequeCash<T> extends AbstractCash<T> {
 
 	Deque<Node> objectsDeque = new LinkedList<>();;
-	
+
+	public DequeCash(){
+		super();
+	}
+
+	public DequeCash(long time, TimeUnits units){
+		super(time, units);
+	}
+
 	class Node{
 		T object;
 		long time;
