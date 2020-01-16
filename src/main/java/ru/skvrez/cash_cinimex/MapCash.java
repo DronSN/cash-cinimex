@@ -58,6 +58,8 @@ public class MapCash<T> extends AbstractCash<T> {
 	@Override
 	public void clear() {
 		objectsList.clear();
+		updateCurrentTime();
+		lastUpdate = currentTime;
 	}
 
 	@Override
