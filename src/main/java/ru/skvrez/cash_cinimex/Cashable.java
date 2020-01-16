@@ -4,17 +4,15 @@ import java.util.Optional;
 
 public interface Cashable<T> {
 	
-	public void putObject(T object);
+	void putObject(T object);
 	
-	public Optional<T> getObject(CashQueryParameters parameters);
+	Optional<T> getObject(CashQueryParameters parameters);
 	
-	public void deleteOldObjects();
+	void deleteOldObjects();
 	
-	public void updateTimeToLive(Long milliseconds);
+	void updateTimeToLive(Long time, TimeUnits units);
 	
-	public void clear();
+	void clear();
 	
-	public void updateObjectTimeToLive(T object);
-	
-
+	void updateObjectTimeToLive(T object) throws NotInCashException;
 }
