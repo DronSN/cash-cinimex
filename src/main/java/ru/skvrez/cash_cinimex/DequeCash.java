@@ -18,11 +18,11 @@ public class DequeCash<T> extends AbstractCash<T> {
 
 	class Node{
 		T object;
-		long time;
+		long addTime;
 		
 		Node(T object, long time){
 			this.object = object;
-			this.time   = time;
+			this.addTime = time;
 		}
 
 		public T getObject() {
@@ -33,12 +33,12 @@ public class DequeCash<T> extends AbstractCash<T> {
 			this.object = object;
 		}
 
-		public long getTime() {
-			return time;
+		public long getAddTime() {
+			return addTime;
 		}
 
-		public void setTime(long time) {
-			this.time = time;
+		public void setAddTime(long addTime) {
+			this.addTime = addTime;
 		}
 	}
 	
@@ -51,7 +51,7 @@ public class DequeCash<T> extends AbstractCash<T> {
 			Node node = new Node(object, currentTime);
 			objectsDeque.add(node);
 		} else {
-			findedObjectNode.setTime(currentTime);
+			findedObjectNode.setAddTime(currentTime);
 		}
 	}
 
@@ -74,7 +74,7 @@ public class DequeCash<T> extends AbstractCash<T> {
 			if(objectsDeque.size() > 0) {
 				Node node = objectsDeque.peekFirst();
 				while(node != null &&
-						node.getTime() + timeToLive > currentTime) {
+						node.getAddTime() + timeToLive > currentTime) {
 					objectsDeque.pollFirst();
 					node = objectsDeque.peekFirst();
 				}
@@ -97,7 +97,7 @@ public class DequeCash<T> extends AbstractCash<T> {
 		for(Node node:objectsDeque) {
 			T dequeObject = node.getObject();
 			if(dequeObject.equals(object)) {
-				node.setTime(currentTime);
+				node.setAddTime(currentTime);
 				isFinded = true;
 				break;
 			}

@@ -1,5 +1,7 @@
 package ru.skvrez.cash_cinimex;
 
+import com.sun.istack.internal.NotNull;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -52,12 +54,8 @@ public class MapCash<T> extends AbstractCash<T> {
 	@Override
 	public void deleteOldObjects() {
 		if(currentTime - lastUpdate > checkTime) {
-			for(Iterator<Map.Entry<T, Long>> it = objectsList.entrySet().iterator(); it.hasNext(); ) {
-				Map.Entry<T, Long> entry = it.next();
-				if(entry.getValue() + timeToLive > currentTime) {
-					it.remove();
-				}
-			}
+			objectsList.entrySet()
+					.removeIf(entry -> entry.getValue() + timeToLive > currentTime);
 			updateCurrentTime();
 			lastUpdate = currentTime;
 		}

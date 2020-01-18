@@ -8,7 +8,7 @@ public class Main {
 		String message2 = "22222222";
 		String message3 = "33333333";
 		String message4 = "44444444";
-		Cashable<String> cash = new Cash<>();
+		Cashable<String> cash = new Cash<>(-3, null);
 		cash.putObject(message1);
 		Thread.sleep(1);
 		cash.putObject(message2);

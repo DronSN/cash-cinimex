@@ -41,7 +41,7 @@ public class Cash<T> implements Cashable<T>, Observer {
     }
 
     @Override
-    public void updateTimeToLive(Long time, TimeUnits units) {
+    public void updateTimeToLive(long time, TimeUnits units) {
         cash.updateTimeToLive(time, units);
     }
 

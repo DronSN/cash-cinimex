@@ -20,7 +20,25 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 	}
 	
 	public AbstractCash(long time, TimeUnits units){
-		timeToLive = calcTimeToMillisec(time, units);
+		String ExceptionOutput = "";
+		boolean isWrongParameters = false;
+		if (units == null){
+			ExceptionOutput = "Time units can not be null. ";
+			isWrongParameters = true;
+		}
+		if (time < 0){
+			ExceptionOutput += "Time can not be negative.";
+			isWrongParameters = true;
+		}
+		if (isWrongParameters){
+			throw new IllegalArgumentException(ExceptionOutput);
+		}
+		checkTime  = DEFAULT_CHECK_TIME;
+		if(time == 0){
+			timeToLive = Long.MAX_VALUE;
+		} else{
+			timeToLive = calcTimeToMillisec(time, units);
+		}
 	}
 	
 	protected long calcTimeToMillisec(long time, TimeUnits units) {
@@ -42,8 +60,8 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 	abstract public void deleteOldObjects();
 
 	@Override
-	public void updateTimeToLive(Long time, TimeUnits units) {
-		timeToLive = calcTimeToMillisec(time, units);		
+	public void updateTimeToLive(long time, TimeUnits units) {
+		timeToLive = calcTimeToMillisec(time, units);
 	}
 
 	@Override
