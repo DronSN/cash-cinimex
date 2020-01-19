@@ -51,8 +51,8 @@ public class Cash<T> implements Cashable<T>, Observer {
     }
 
     @Override
-    public void updateObjectTimeToLive(T object) throws NotInCashException {
-        cash.updateObjectTimeToLive(object);
+    public void updateObjectAddingTime(T object) throws NotInCashException {
+        cash.updateObjectAddingTime(object);
     }
 
     @Override

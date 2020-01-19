@@ -18,6 +18,7 @@ public class Main {
 		cash.putObject(message4);
 		Thread.sleep(1);
 		System.out.println(cash.getObject(new CashQueryParameters(true)));
+		throw new IllegalArgumentException();
 
 	}
 

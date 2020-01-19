@@ -16,5 +16,5 @@ public interface Cashable<T> {
 	
 	void clear();
 	
-	void updateObjectTimeToLive(@NotNull T object) throws NotInCashException;
+	void updateObjectAddingTime(@NotNull T object) throws NotInCashException;
 }

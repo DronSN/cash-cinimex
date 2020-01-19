@@ -2,14 +2,11 @@ package ru.skvrez.cash_cinimex;
 
 import com.sun.istack.internal.NotNull;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class MapCash<T> extends AbstractCash<T> {
 
-	private Map<T, Long> objectsList = new HashMap<>();
+	private Map<T, Long> objectsList = new LinkedHashMap<>();
 
 	public MapCash(){
 		super();
@@ -22,38 +19,39 @@ public class MapCash<T> extends AbstractCash<T> {
 	@Override
 	public void putObject(T object) {
         updateCurrentTime();
-		deleteOldObjects();
+		//deleteOldObjects();
 		objectsList.put(object, currentTime);
 	}
 
 	@Override
 	public Optional<T> getObject(CashQueryParameters parameters) {
+		if (parameters == null){
+			throw new IllegalArgumentException("Cash query parameter cannot be null");
+		}
+		if (objectsList.isEmpty()){
+			throw new NotInCashException("Object's list is empty. Cannot get object from list");
+		}
 		T object = null;
 		if(parameters.isOldestElement()) {
-			long minTime = Long.MAX_VALUE;
-			for(Map.Entry<T, Long> entry:objectsList.entrySet()) {
-				long entryValue = entry.getValue();
-				if (entryValue < minTime) {
-					minTime = entryValue;
-					object = entry.getKey();
-				}
-			}
+			object = objectsList.entrySet()
+					.stream()
+					.findFirst()
+					.get()
+					.getKey();
 		} else {
-			long maxTime = 0;
-			for(Map.Entry<T, Long> entry:objectsList.entrySet()) {
-				long entryValue = entry.getValue();
-				if (entryValue > maxTime) {
-					maxTime = entryValue;
-					object = entry.getKey();
-				}
-			}
+			object = objectsList.entrySet()
+					.stream()
+					.skip(objectsList.entrySet().size() - 1)
+					.findFirst()
+					.get()
+					.getKey();
 		}
 		return Optional.of(object);
 	}
 
 	@Override
 	public void deleteOldObjects() {
-		if(currentTime - lastUpdate > checkTime) {
+		if(currentTime - lastUpdate >= checkTime) {
 			objectsList.entrySet()
 					.removeIf(entry -> entry.getValue() + timeToLive > currentTime);
 			updateCurrentTime();
@@ -69,11 +67,16 @@ public class MapCash<T> extends AbstractCash<T> {
 	}
 
 	@Override
-	public void updateObjectTimeToLive(T object) throws NotInCashException {
+	public void updateObjectAddingTime(T object) throws NotInCashException {
 		if(objectsList.containsKey(object)){
+			objectsList.remove(object);
 			putObject(object);
 		} else {
-			throw new NotInCashException();
+			throw new NotInCashException("Object not found in cache");
 		}
+	}
+
+	Map<T, Long> getObjectsList() {
+		return objectsList;
 	}
 }

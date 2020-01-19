@@ -92,7 +92,7 @@ public class DequeCash<T> extends AbstractCash<T> {
 	}
 
 	@Override
-	public void updateObjectTimeToLive(T object) throws NotInCashException {
+	public void updateObjectAddingTime(T object) throws NotInCashException {
 		boolean isFinded = false;
 		for(Node node:objectsDeque) {
 			T dequeObject = node.getObject();

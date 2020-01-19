@@ -20,25 +20,9 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 	}
 	
 	public AbstractCash(long time, TimeUnits units){
-		String ExceptionOutput = "";
-		boolean isWrongParameters = false;
-		if (units == null){
-			ExceptionOutput = "Time units can not be null. ";
-			isWrongParameters = true;
-		}
-		if (time < 0){
-			ExceptionOutput += "Time can not be negative.";
-			isWrongParameters = true;
-		}
-		if (isWrongParameters){
-			throw new IllegalArgumentException(ExceptionOutput);
-		}
+		timeToLiveValidating(time, units);
+		timeToLiveSetting(time, units);
 		checkTime  = DEFAULT_CHECK_TIME;
-		if(time == 0){
-			timeToLive = Long.MAX_VALUE;
-		} else{
-			timeToLive = calcTimeToMillisec(time, units);
-		}
 	}
 	
 	protected long calcTimeToMillisec(long time, TimeUnits units) {
@@ -49,7 +33,31 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 			default:      return time;
 		}
 	}
-	
+
+	private void timeToLiveValidating(long time, TimeUnits units){
+		StringBuilder exceptionOutput = new StringBuilder();
+		boolean isWrong = false;
+		if (units == null){
+			exceptionOutput.append("Time units can not be null. ");
+			isWrong = true;
+		}
+		if (time < 0){
+			exceptionOutput.append("Time can not be negative.");
+			isWrong = true;
+		}
+		if (isWrong){
+			throw new IllegalArgumentException(exceptionOutput.toString());
+		}
+	}
+
+	private void timeToLiveSetting(long time, TimeUnits units){
+		if(time == 0){
+			timeToLive = Long.MAX_VALUE;
+		} else{
+			timeToLive = calcTimeToMillisec(time, units);
+		}
+	}
+
 	@Override
 	abstract public void putObject(T object);
 
@@ -61,14 +69,15 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 
 	@Override
 	public void updateTimeToLive(long time, TimeUnits units) {
-		timeToLive = calcTimeToMillisec(time, units);
+		timeToLiveValidating(time, units);
+		timeToLiveSetting(time, units);
 	}
 
 	@Override
 	abstract public void clear();
 
 	@Override
-	abstract public void updateObjectTimeToLive(T object) throws NotInCashException;
+	abstract public void updateObjectAddingTime(T object) throws NotInCashException;
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
