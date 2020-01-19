@@ -16,7 +16,6 @@ class MapCashTest {
     @BeforeEach
     void setUp() {
         mapCash = new MapCash<>();
-
     }
 
     @Test
