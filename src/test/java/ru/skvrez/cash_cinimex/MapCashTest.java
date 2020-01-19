@@ -2,10 +2,11 @@ package ru.skvrez.cash_cinimex;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.provider.CsvSource;
 import java.util.LinkedList;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class MapCashTest {
@@ -16,9 +17,29 @@ class MapCashTest {
     @BeforeEach
     void setUp() {
         mapCash = new MapCash<>();
-
     }
 
+    @ParameterizedTest
+    //Convert list time units to milliseconds
+    @CsvSource({
+        "1, MILLISECONDS",
+        "1000, SECONDS",
+        "60000, MINUTES",
+        "3600000, HOURS"
+    })
+    void testConstructorWhenParametersPassed(ArgumentsAccessor arguments) {
+    	MapCash<String> constructorWithParam = 
+    			new MapCash<>(1, arguments.get(1,TimeUnits.class));
+    	long expectedTimeToLive = arguments.getLong(0);
+    	long expectedCheckTime  = 1_000_000;
+        long actualTimeToLive = constructorWithParam.getTimeToLive();
+        long actualCheckTime = constructorWithParam.getCheckTime();
+        assertEquals(expectedTimeToLive, actualTimeToLive,
+                "Assertion TimeToLive for constructor with parameters in " + arguments.get(1,TimeUnits.class));
+        assertEquals(expectedCheckTime, actualCheckTime,
+                "Assertion CheckTime  for constructor with parameters in " + arguments.get(1,TimeUnits.class));        
+    }
+   
     @Test
     void testConstructorWhenItHaveNoParameters(){
         MapCash<String> defaultConstructor = new MapCash<>();
@@ -30,58 +51,6 @@ class MapCashTest {
                 "Assertion TimeToLive for default constructor");
         assertEquals(expectedCheckTime, actualCheckTime,
                 "Assertion CheckTime for default constructor");
-    }
-
-    @Test
-    void testConstructorWhenItHaveParameterTimeInMilliseconds(){
-        MapCash<String> constructorWithParam = new MapCash<>(1000,TimeUnits.MILLISECONDS);
-        long expectedTimeToLive = 1000;
-        long expectedCheckTime  = 1_000_000;
-        long actualTimeToLive = constructorWithParam.getTimeToLive();
-        long actualCheckTime = constructorWithParam.getCheckTime();
-        assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive for constructor with parameters in MILLISECONDS");
-        assertEquals(expectedCheckTime, actualCheckTime,
-                "Assertion CheckTime for constructor with parameters in MILLISECONDS");
-    }
-
-    @Test
-    void testConstructorWhenItHaveParameterTimeInSeconds(){
-        MapCash<String> constructorWithParam = new MapCash<>(10,TimeUnits.SECONDS);
-        long expectedTimeToLive = 10_000;
-        long expectedCheckTime  = 1_000_000;
-        long actualTimeToLive = constructorWithParam.getTimeToLive();
-        long actualCheckTime = constructorWithParam.getCheckTime();
-        assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive for constructor with parameters in SECONDS");
-        assertEquals(expectedCheckTime, actualCheckTime,
-                "Assertion CheckTime for constructor with parameters in SECONDS");
-    }
-
-    @Test
-    void testConstructorWhenItHaveParameterTimeInMinutes(){
-        MapCash<String> constructorWithParam = new MapCash<>(1,TimeUnits.MINUTES);
-        long expectedTimeToLive = 60_000;
-        long expectedCheckTime  = 1_000_000;
-        long actualTimeToLive = constructorWithParam.getTimeToLive();
-        long actualCheckTime = constructorWithParam.getCheckTime();
-        assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive for constructor with parameters in MINUTES");
-        assertEquals(expectedCheckTime, actualCheckTime,
-                "Assertion CheckTime for constructor with parameters in MINUTES");
-    }
-
-    @Test
-    void testConstructorWhenItHaveParameterTimeInHours(){
-        MapCash<String> constructorWithParam = new MapCash<>(1,TimeUnits.HOURS);
-        long expectedTimeToLive = 3_600_000;
-        long expectedCheckTime  = 1_000_000;
-        long actualTimeToLive = constructorWithParam.getTimeToLive();
-        long actualCheckTime = constructorWithParam.getCheckTime();
-        assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive for constructor with parameters in HOURS");
-        assertEquals(expectedCheckTime, actualCheckTime,
-                "Assertion CheckTime for constructor with parameters in HOURS");
     }
 
     @Test
@@ -124,42 +93,22 @@ class MapCashTest {
                 "Assertion current time updating");
     }
 
-    @Test
-    void testUpdateTimeToLiveWhenUsedMillisecondsUnit() {
-        long expectedTimeToLive = 1000;
-        mapCash.updateTimeToLive(1000,TimeUnits.MILLISECONDS);
+    @ParameterizedTest
+    //Convert list time units to milliseconds
+    @CsvSource({
+        "1, MILLISECONDS",
+        "1000, SECONDS",
+        "60000, MINUTES",
+        "3600000, HOURS"
+    })
+    void testUpdateTimeToLiveWhenUsedDifferentTimeUnits(ArgumentsAccessor arguments) {
+        long expectedTimeToLive = arguments.getLong(0);
+        mapCash.updateTimeToLive(1,arguments.get(1, TimeUnits.class));
         long actualTimeToLive = mapCash.getTimeToLive();
         assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive updating in MILLISECONDS");
+                "Assertion TimeToLive updating in " + arguments.get(1, TimeUnits.class));
     }
-
-    @Test
-    void testUpdateTimeToLiveWhenUsedSecondsUnit() {
-        long expectedTimeToLive = 1_000_000;
-        mapCash.updateTimeToLive(1000,TimeUnits.SECONDS);
-        long actualTimeToLive = mapCash.getTimeToLive();
-        assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive updating in SECONDS");
-    }
-
-    @Test
-    void testUpdateTimeToLiveWhenUsedMinutesUnit() {
-        long expectedTimeToLive = 60_000;
-        mapCash.updateTimeToLive(1,TimeUnits.MINUTES);
-        long actualTimeToLive = mapCash.getTimeToLive();
-        assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive updating in MINUTES");
-    }
-
-    @Test
-    void testUpdateTimeToLiveWhenUsedHoursUnit() {
-        long expectedTimeToLive = 3_600_000;
-        mapCash.updateTimeToLive(1,TimeUnits.HOURS);
-        long actualTimeToLive = mapCash.getTimeToLive();
-        assertEquals(expectedTimeToLive, actualTimeToLive,
-                "Assertion TimeToLive updating in HOURS");
-    }
-
+    
     @Test
     void update() {
     }
