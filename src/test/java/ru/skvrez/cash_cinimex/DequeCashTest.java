@@ -227,13 +227,11 @@ class DequeCashTest {
 		}
 		String objectPutAgain = objectList.get(5);
 		dequeCash.putObject(objectPutAgain);
-		Map<String,Long> mapObjectsList = (Map<String, Long>) dequeCash.getObjectsList();
-		String youngestObject = mapObjectsList.entrySet()
-				.stream()
-				.skip(mapObjectsList.entrySet().size() - 1)
-				.findFirst()
-				.get()
-				.getKey();
+		LinkedList<DequeCash<String>.Node> nodeList = dequeCash.getObjectsList();
+		String youngestObject = null;
+		for (DequeCash<String>.Node node: nodeList){
+			youngestObject = node.getObject();
+		}
 		assertEquals(objectPutAgain,youngestObject,
 				"Assertion putting present object in cash");
 	}
@@ -371,7 +369,7 @@ class DequeCashTest {
 	}
 
 	@Test
-	void testUpdateObjectTimeShouldUpdateTimeInMap() {
+	void testUpdateObjectTimeShouldUpdateTimeInList() {
 		for (String s:objectList) {
 			dequeCash.putObject(s);
 		}
@@ -380,8 +378,7 @@ class DequeCashTest {
 		} catch(InterruptedException ex) {}
 		dequeCash.updateObjectAddingTime(objectList.get(5));
 		long expectedTime = dequeCash.getCurrentTime();
-		Map<String,Long> mapObjectsList = (Map<String, Long>) dequeCash.getObjectsList();
-		long actualObjectAddingTime = mapObjectsList.get(objectList.get(5));
+		long actualObjectAddingTime = dequeCash.getObjectNode(objectList.get(5)).getAddTime();
 		assertEquals(expectedTime, actualObjectAddingTime,
 				"Assumption updating object adding time");
 	}
@@ -396,15 +393,12 @@ class DequeCashTest {
 		} catch(InterruptedException ex) {}
 		String expectedObject = objectList.get(5);
 		dequeCash.updateObjectAddingTime(objectList.get(5));
-		Map<String,Long> mapObjectsList = (Map<String, Long>) dequeCash.getObjectsList();
-		String actualObject = mapObjectsList.entrySet()
-				.stream()
-				.skip(mapObjectsList.entrySet().size() - 1)
-				.findFirst()
-				.get()
-				.getKey();
+		LinkedList<DequeCash<String>.Node> nodesList = dequeCash.getObjectsList();
+		String actualObject = null;
+		for (DequeCash<String>.Node s:nodesList){
+			actualObject = s.getObject();
+		}
 		assertEquals(expectedObject, actualObject,
 				"Assumption updating object in list");
 	}
-
 }

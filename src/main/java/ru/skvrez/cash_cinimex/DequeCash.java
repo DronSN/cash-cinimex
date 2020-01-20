@@ -1,9 +1,6 @@
 package ru.skvrez.cash_cinimex;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class DequeCash<T> extends AbstractCash<T> {
 
@@ -42,47 +39,54 @@ public class DequeCash<T> extends AbstractCash<T> {
 			this.addTime = addTime;
 		}
 	}
+
+	Node getObjectNode(T object){
+		for (Node node:objectsDeque){
+			if (node.getObject().equals(object)){
+				return node;
+			}
+		}
+		return null;
+	}
 	
 	@Override
 	public void putObject(T object) {
         updateCurrentTime();
-		deleteOldObjects();
-		Node findedObjectNode = findObjectNode(object); 
-		if(findedObjectNode == null) {
-			Node node = new Node(object, currentTime);
-			objectsDeque.add(node);
-		} else {
-			findedObjectNode.setAddTime(currentTime);
-		}
+        deleteIfPresent(object);
+		Node node = new Node(object, currentTime);
+		objectsDeque.add(node);
 	}
 
 	@Override
 	public Optional<T> getObject(CashQueryParameters parameters) {
+		if (parameters == null){
+			throw new IllegalArgumentException("Cash query parameter cannot be null");
+		}
+		if (objectsDeque.isEmpty()){
+			throw new NotInCashException("Object's list is empty. Cannot get object from list");
+		}
 		T object = null;
-		if(parameters != null) {
-			if(parameters.isOldestElement()) {
-				object = objectsDeque.peekFirst().getObject(); 
-			} else {
-				object = objectsDeque.peekLast().getObject();
-			}
+		if(parameters.isOldestElement()) {
+			object = objectsDeque.peekFirst().getObject();
+		} else {
+			object = objectsDeque.peekLast().getObject();
 		}
 		return Optional.of(object);
 	}
 
 	@Override
 	public void deleteOldObjects() {
-		if(currentTime - lastUpdate > checkTime) {		
-			if(objectsDeque.size() > 0) {
-				Node node = objectsDeque.peekFirst();
-				while(node != null &&
-						node.getAddTime() + timeToLive > currentTime) {
-					objectsDeque.pollFirst();
-					node = objectsDeque.peekFirst();
-				}
+		updateCurrentTime();
+		if(objectsDeque.size() > 0) {
+			Node node = objectsDeque.peekFirst();
+			while(node != null &&
+					node.getAddTime() + timeToLive < currentTime) {
+				objectsDeque.pollFirst();
+				node = objectsDeque.peekFirst();
 			}
-			updateCurrentTime();
-			lastUpdate = currentTime;
 		}
+		updateCurrentTime();
+		lastUpdate = currentTime;
 	}
 
 	@Override
@@ -92,19 +96,26 @@ public class DequeCash<T> extends AbstractCash<T> {
 		lastUpdate = currentTime;
 	}
 
-	@Override
-	public void updateObjectAddingTime(T object) throws NotInCashException {
-		boolean isFinded = false;
-		for(Node node:objectsDeque) {
-			T dequeObject = node.getObject();
-			if(dequeObject.equals(object)) {
-				node.setAddTime(currentTime);
-				isFinded = true;
+	private boolean deleteIfPresent(T object){
+		boolean isPresent = false;
+		Iterator<DequeCash<T>.Node> iterator = objectsDeque.iterator();
+		while (iterator.hasNext()){
+			if (iterator.next().getObject().equals(object)){
+				iterator.remove();
+				isPresent = true;
 				break;
 			}
 		}
-		if (!isFinded) {
+		return isPresent;
+	}
+
+	@Override
+	public void updateObjectAddingTime(T object) throws NotInCashException {
+		if (!deleteIfPresent(object)) {
 			throw new NotInCashException();
+		} else {
+			Node node = new Node(object,currentTime);
+			objectsDeque.add(node);
 		}
 	}
 	
