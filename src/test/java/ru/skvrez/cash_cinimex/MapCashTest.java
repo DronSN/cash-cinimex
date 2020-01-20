@@ -141,7 +141,59 @@ class MapCashTest {
     }
 
     @Test
-    void update() {
+    void testUpdateCheckTimeWhenTimeParameterHaveZeroValue(){
+        long expectedCheckTime = Long.MAX_VALUE;
+        mapCash.updateCheckTime(0);
+        long actualCheckTime = mapCash.getCheckTime();
+        assertEquals(expectedCheckTime, actualCheckTime,
+                "Assertion CheckTime with zero value of time parameter");
+    }
+
+    @Test
+    void testUpdateCheckTimeWhenValidTimeParameter(){
+        long expectedCheckTime = 1000;
+        mapCash.updateCheckTime(1000);
+        long actualCheckTime = mapCash.getCheckTime();
+        assertEquals(expectedCheckTime, actualCheckTime,
+                "Assertion CheckTime with valid value of time parameter");
+    }
+
+
+    @Test
+    void testUpdateCheckTimeWhenNegativeTimeParameter(){
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                mapCash.updateCheckTime(-1));
+        assertEquals("Parameter checkTime cannot be negative", exception.getMessage().trim());
+    }
+
+
+    @Test
+    void testUpdateShouldNotDeleteOldObject() {
+        for (String s:objectList){
+            mapCash.putObject(s);
+        }
+        mapCash.update(null,null);
+        int expectedObjectsNumber = 10;
+        int actualObjectsNumber = mapCash.getObjectsList().size();
+        assertEquals(expectedObjectsNumber, actualObjectsNumber,
+                "Assertion cash immutable after update invoking");
+    }
+
+    @Test
+    void testUpdateShouldDeleteOldObject() {
+        for (String s:objectList){
+            mapCash.putObject(s);
+        }
+        try {
+            Thread.sleep(10);
+        } catch(InterruptedException ex) {}
+        mapCash.updateCheckTime(5);
+        mapCash.updateTimeToLive(5,TimeUnits.MILLISECONDS);
+        mapCash.update(null,null);
+        int expectedObjectsNumber = 0;
+        int actualObjectsNumber = mapCash.getObjectsList().size();
+        assertEquals(expectedObjectsNumber, actualObjectsNumber,
+                "Assertion cash should by empty after update invoking");
     }
 
     @Test
@@ -158,6 +210,24 @@ class MapCashTest {
         mapCash.putObject(testObject);
         assumeTrue(mapCash.getObjectsList().containsKey(testObject),
                 "Assumption null object is in list");
+    }
+
+    @Test
+    void testPutObjectWhenObjectPresentInCash() {
+        for (String s:objectList){
+            mapCash.putObject(s);
+        }
+        String objectPutAgain = objectList.get(5);
+        mapCash.putObject(objectPutAgain);
+        Map<String,Long> mapObjectsList = mapCash.getObjectsList();
+        String youngestObject = mapObjectsList.entrySet()
+                .stream()
+                .skip(mapObjectsList.entrySet().size() - 1)
+                .findFirst()
+                .get()
+                .getKey();
+        assertEquals(objectPutAgain,youngestObject,
+                "Assertion putting present object in cash");
     }
 
     @Test
@@ -209,7 +279,7 @@ class MapCashTest {
     }
 
     @Test
-    void deleteOldObjects() {
+    void testDeleteOldObjectsWhenAddedFewObjects() {
         for (int i = 0; i < 5; i++) {
             mapCash.putObject(objectList.get(i));
         }
@@ -217,14 +287,46 @@ class MapCashTest {
             Thread.sleep(10);
         } catch(InterruptedException ex) {
         }
-        mapCash.updateTimeToLive(5,TimeUnits.MILLISECONDS);
-        mapCash.setCheckTime(1);
+
         for (int i = 5; i < 10; i++) {
             mapCash.putObject(objectList.get(i));
         }
+        mapCash.updateTimeToLive(5,TimeUnits.MILLISECONDS);
         mapCash.deleteOldObjects();
-        mapCash.getObjectsList().entrySet().stream().forEach(x-> System.out.println(x));
+        int expectedObjectsCount = 5;
+        int actualObjectsCount = mapCash.getObjectsList().size();
+        assertEquals(expectedObjectsCount,actualObjectsCount,
+                "Assertion number of objects in cash");
+        try {
+            Thread.sleep(10);
+        } catch(InterruptedException ex) {
+        }
+        mapCash.deleteOldObjects();
+        expectedObjectsCount = 0;
+        actualObjectsCount = mapCash.getObjectsList().size();
+        assertEquals(expectedObjectsCount,actualObjectsCount,
+                "Assertion number of objects in empty cash");
+
     }
+
+    @Test
+    void testDeleteOldObjectsShouldUpdateCurrentTime(){
+        long expectedTime = System.currentTimeMillis();
+        mapCash.deleteOldObjects();
+        long actualCurrentTime = mapCash.getCurrentTime();
+        assertEquals(expectedTime, actualCurrentTime,
+                "Assertion current time after deleting elder objects");
+    }
+
+    @Test
+    void testDeleteOldObjectsShouldChangedLastUpdateTime(){
+        long expectedLastUpdateTime = System.currentTimeMillis();
+        mapCash.deleteOldObjects();
+        long actualLastUpdateTime = mapCash.getLastUpdate();
+        assertEquals(expectedLastUpdateTime, actualLastUpdateTime,
+                "Assertion last update time after deleting elder objects");
+    }
+
 
     @Test
     void testClearWhenAddedFewObjects() {
@@ -293,7 +395,6 @@ class MapCashTest {
                 .findFirst()
                 .get()
                 .getKey();
-        mapObjectsList.values().stream().forEach(x-> System.out.println(x));
         assertEquals(expectedObject, actualObject,
                 "Assumption updating object in list");
     }

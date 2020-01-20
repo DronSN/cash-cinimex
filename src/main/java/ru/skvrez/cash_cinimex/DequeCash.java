@@ -2,6 +2,7 @@ package ru.skvrez.cash_cinimex;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Optional;
 
 public class DequeCash<T> extends AbstractCash<T> {
@@ -117,4 +118,8 @@ public class DequeCash<T> extends AbstractCash<T> {
 		}
 		return result;
 	}
+	LinkedList<Node> getObjectsList() {
+		return (LinkedList)objectsDeque;
+	}
+
 }

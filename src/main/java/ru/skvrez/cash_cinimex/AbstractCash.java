@@ -82,7 +82,11 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		updateCurrentTime();
-		deleteOldObjects();		
+		if(lastUpdate + checkTime < currentTime){
+			deleteOldObjects();
+			updateCurrentTime();
+			lastUpdate = currentTime;
+		}
 	}
 	
 	protected void updateCurrentTime() {
@@ -102,10 +106,16 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 		return checkTime;
 	}
 
-	public void setCheckTime(long checkTime) {
-		this.checkTime = checkTime;
+	@Override
+	public void updateCheckTime(long checkTime) {
+		if (checkTime < 0){
+			throw new IllegalArgumentException("Parameter checkTime cannot be negative");
+		} else if(checkTime == 0) {
+			this.checkTime = Long.MAX_VALUE;
+		} else {
+			this.checkTime = checkTime;
+		}
 		updateCurrentTime();
-		deleteOldObjects();		
 	}
 
 	public long getLastUpdate() {

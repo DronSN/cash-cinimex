@@ -1,12 +1,18 @@
 package ru.skvrez.cash_cinimex;
 
-import com.sun.istack.internal.NotNull;
-
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class MapCash<T> extends AbstractCash<T> {
 
-	private Map<T, Long> objectsList = new LinkedHashMap<>();
+	private final Map<T, Long> objectsList = new LinkedHashMap<T, Long>() {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<T, Long> eldest) {
+			long addTime = (long) eldest.getValue();
+			return addTime + timeToLive < currentTime;
+		}
+	};
 
 	public MapCash(){
 		super();
@@ -19,8 +25,10 @@ public class MapCash<T> extends AbstractCash<T> {
 	@Override
 	public void putObject(T object) {
         updateCurrentTime();
-		//deleteOldObjects();
-		objectsList.put(object, currentTime);
+		if (objectsList.containsKey(object)){
+			objectsList.remove(object);
+		}
+        objectsList.put(object, currentTime);
 	}
 
 	@Override
@@ -51,12 +59,12 @@ public class MapCash<T> extends AbstractCash<T> {
 
 	@Override
 	public void deleteOldObjects() {
-		if(currentTime - lastUpdate >= checkTime) {
-			objectsList.entrySet()
-					.removeIf(entry -> entry.getValue() + timeToLive > currentTime);
-			updateCurrentTime();
-			lastUpdate = currentTime;
-		}
+		updateCurrentTime();
+		objectsList.entrySet()
+					.removeIf(entry ->
+							entry.getValue() + timeToLive < currentTime);
+		updateCurrentTime();
+		lastUpdate = currentTime;
 	}
 
 	@Override
@@ -69,7 +77,6 @@ public class MapCash<T> extends AbstractCash<T> {
 	@Override
 	public void updateObjectAddingTime(T object) throws NotInCashException {
 		if(objectsList.containsKey(object)){
-			objectsList.remove(object);
 			putObject(object);
 		} else {
 			throw new NotInCashException("Object not found in cache");

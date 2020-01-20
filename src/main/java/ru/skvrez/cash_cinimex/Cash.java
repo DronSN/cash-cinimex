@@ -46,6 +46,11 @@ public class Cash<T> implements Cashable<T>, Observer {
     }
 
     @Override
+    public void updateCheckTime(long time) {
+        cash.updateCheckTime(time);
+    }
+
+    @Override
     public void clear() {
         cash.clear();
     }
