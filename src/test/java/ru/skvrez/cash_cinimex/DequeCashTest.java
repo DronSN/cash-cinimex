@@ -16,14 +16,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Andrey
- *
- */
 class DequeCashTest {
 
     List<String> objectList = new LinkedList<>();
     DequeCash<String> dequeCash;
+
+    void pause(int milliseconds){
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+        }
+    }
 
     @BeforeEach
     void setUp() {
@@ -100,10 +103,7 @@ class DequeCashTest {
     void testUpdateCurrentTimeWhenItChangedAfterPause() {
         dequeCash.updateCurrentTime();
         long expectedCurrentTime = dequeCash.getCurrentTime();
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException ex) {
-        }
+        pause(1);
         dequeCash.updateCurrentTime();
         long actualCurrentTime = dequeCash.getCurrentTime();
         assertNotEquals(expectedCurrentTime, actualCurrentTime,
@@ -193,10 +193,7 @@ class DequeCashTest {
         for (String s : objectList) {
             dequeCash.putObject(s);
         }
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException ex) {
-        }
+        pause(10);
         dequeCash.updateCheckTime(5);
         dequeCash.updateTimeToLive(5, TimeUnits.MILLISECONDS);
         dequeCash.update(null, null);
@@ -292,10 +289,7 @@ class DequeCashTest {
         for (int i = 0; i < 5; i++) {
             dequeCash.putObject(objectList.get(i));
         }
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException ex) {
-        }
+        pause(10);
         for (int i = 5; i < 10; i++) {
             dequeCash.putObject(objectList.get(i));
         }
@@ -305,10 +299,7 @@ class DequeCashTest {
         int actualObjectsCount = dequeCash.getObjectsList().size();
         assertEquals(expectedObjectsCount, actualObjectsCount,
                 "Assertion number of objects in cash");
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException ex) {
-        }
+        pause(10);
         dequeCash.deleteOldObjects();
         expectedObjectsCount = 0;
         actualObjectsCount = dequeCash.getObjectsList().size();
@@ -379,10 +370,7 @@ class DequeCashTest {
         for (String s : objectList) {
             dequeCash.putObject(s);
         }
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException ex) {
-        }
+        pause(1);
         dequeCash.updateObjectAddingTime(objectList.get(5));
         long expectedTime = dequeCash.getCurrentTime();
         long actualObjectAddingTime = dequeCash.getObjectNode(objectList.get(5)).getAddTime();
@@ -395,10 +383,7 @@ class DequeCashTest {
         for (String s : objectList) {
             dequeCash.putObject(s);
         }
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException ex) {
-        }
+        pause(1);
         String expectedObject = objectList.get(5);
         dequeCash.updateObjectAddingTime(objectList.get(5));
         LinkedList<DequeCash<String>.Node> nodesList = dequeCash.getObjectsList();

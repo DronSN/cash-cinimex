@@ -15,8 +15,4 @@ public class CashQueryParameters {
         return oldestElement;
     }
 
-    public void setOldestElement(boolean oldestElement) {
-        this.oldestElement = oldestElement;
-    }
-
 }

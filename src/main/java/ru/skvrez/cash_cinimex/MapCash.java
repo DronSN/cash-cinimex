@@ -2,7 +2,6 @@ package ru.skvrez.cash_cinimex;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class MapCash<T> extends AbstractCash<T> {
 

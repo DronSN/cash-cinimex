@@ -2,7 +2,6 @@ package ru.skvrez.cash_cinimex;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Optional;
 /**
  * The object temporarily stores other objects. A cash cannot contain duplicate objects.
  * When adding an existing object, it only changes the time of adding.
@@ -10,7 +9,7 @@ import java.util.Optional;
  */
 public class Cash<T> implements Cashable<T>, Observer {
 
-    private Cashable cash;
+    private Cashable<T> cash;
 
     public Cash(){
         cash = new MapCash();
@@ -36,7 +35,7 @@ public class Cash<T> implements Cashable<T>, Observer {
 
     @Override
     public T getObject(CashQueryParameters parameters) {
-        return (T) cash.getObject(parameters);
+        return cash.getObject(parameters);
     }
 
     @Override
@@ -66,7 +65,12 @@ public class Cash<T> implements Cashable<T>, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+
         Observer observerCash = (Observer) cash;
         observerCash.update(o,arg);
+    }
+
+    public Cashable<T> getCash() {
+        return cash;
     }
 }

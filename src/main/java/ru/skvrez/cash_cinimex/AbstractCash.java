@@ -2,7 +2,6 @@ package ru.skvrez.cash_cinimex;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Optional;
 
 abstract class AbstractCash<T> implements Cashable<T>, Observer {
 
@@ -100,11 +99,6 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
 
     public long getCurrentTime() {
         return currentTime;
-    }
-
-    public void setCurrentTime(long currentTime) {
-        this.currentTime = currentTime;
-        deleteOldObjects();
     }
 
     public long getCheckTime() {

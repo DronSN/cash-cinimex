@@ -25,6 +25,13 @@ class MapCashTest {
         }
     }
 
+    void pause(int milliseconds){
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+        }
+    }
+
     @ParameterizedTest
     //Convert list time units to milliseconds
     @CsvSource({
@@ -92,9 +99,7 @@ class MapCashTest {
     void testUpdateCurrentTimeWhenItChangedAfterPause(){
         mapCash.updateCurrentTime();
         long expectedCurrentTime = mapCash.getCurrentTime();
-        try {
-            Thread.sleep(1);
-        } catch(InterruptedException ex) {}
+        pause(1);
         mapCash.updateCurrentTime();
         long actualCurrentTime = mapCash.getCurrentTime();
         assertNotEquals(expectedCurrentTime,actualCurrentTime,
@@ -184,9 +189,7 @@ class MapCashTest {
         for (String s:objectList){
             mapCash.putObject(s);
         }
-        try {
-            Thread.sleep(10);
-        } catch(InterruptedException ex) {}
+        pause(10);
         mapCash.updateCheckTime(5);
         mapCash.updateTimeToLive(5,TimeUnits.MILLISECONDS);
         mapCash.update(null,null);
@@ -284,10 +287,7 @@ class MapCashTest {
         for (int i = 0; i < 5; i++) {
             mapCash.putObject(objectList.get(i));
         }
-        try {
-            Thread.sleep(10);
-        } catch(InterruptedException ex) {
-        }
+        pause(10);
         for (int i = 5; i < 10; i++) {
             mapCash.putObject(objectList.get(i));
         }
@@ -297,10 +297,7 @@ class MapCashTest {
         int actualObjectsCount = mapCash.getObjectsList().size();
         assertEquals(expectedObjectsCount,actualObjectsCount,
                 "Assertion number of objects in cash");
-        try {
-            Thread.sleep(10);
-        } catch(InterruptedException ex) {
-        }
+        pause(10);
         mapCash.deleteOldObjects();
         expectedObjectsCount = 0;
         actualObjectsCount = mapCash.getObjectsList().size();
@@ -370,9 +367,7 @@ class MapCashTest {
         for (String s:objectList) {
             mapCash.putObject(s);
         }
-        try {
-            Thread.sleep(1);
-        } catch(InterruptedException ex) {}
+        pause(1);
         mapCash.updateObjectAddingTime(objectList.get(5));
         long expectedTime = mapCash.getCurrentTime();
         Map<String,Long> mapObjectsList = mapCash.getObjectsList();
@@ -386,9 +381,7 @@ class MapCashTest {
         for (String s:objectList) {
             mapCash.putObject(s);
         }
-        try {
-            Thread.sleep(1);
-        } catch(InterruptedException ex) {}
+        pause(1);
         String expectedObject = objectList.get(5);
         mapCash.updateObjectAddingTime(objectList.get(5));
         Map<String,Long> mapObjectsList = mapCash.getObjectsList();

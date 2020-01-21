@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(JUnitPlatform.class)
 @SelectPackages("ru.skvrez.cash_cinimex")
+
 public class ProjectTestSuite {
 
 }
