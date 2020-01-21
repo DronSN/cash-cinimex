@@ -63,16 +63,16 @@ class MapCashTest {
 
     @Test
     void testConstructorWhenItHaveNullUnitParameter(){
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(NullPointerException.class, () ->
                 new MapCash<>(1,null));
-        assertEquals("Time units can not be null.", exception.getMessage().trim());
+        assertEquals("Time units can not be null.", exception.getMessage());
     }
 
     @Test
     void testConstructorWhenItHaveNegativeTimeParameter(){
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 new MapCash<>(-1,TimeUnits.MILLISECONDS));
-        assertEquals("Time can not be negative.", exception.getMessage().trim());
+        assertEquals("Time can not be negative.", exception.getMessage());
     }
 
     @Test
@@ -119,9 +119,9 @@ class MapCashTest {
 
     @Test
     void testUpdateTimeToLiveWhenUsedNullTimeUnitParameter(){
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(NullPointerException.class, () ->
                 mapCash.updateTimeToLive(1,null));
-        assertEquals("Time units can not be null.", exception.getMessage().trim());
+        assertEquals("Time units can not be null.", exception.getMessage());
     }
 
     @Test
@@ -137,7 +137,7 @@ class MapCashTest {
     void testUpdateTimeToLiveWhenNegativeTimeParameter(){
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                mapCash.updateTimeToLive(-1,TimeUnits.MILLISECONDS));
-        assertEquals("Time can not be negative.", exception.getMessage().trim());
+        assertEquals("Time can not be negative.", exception.getMessage());
     }
 
     @Test
@@ -163,7 +163,7 @@ class MapCashTest {
     void testUpdateCheckTimeWhenNegativeTimeParameter(){
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 mapCash.updateCheckTime(-1));
-        assertEquals("Parameter checkTime cannot be negative", exception.getMessage().trim());
+        assertEquals("Parameter checkTime cannot be negative", exception.getMessage());
     }
 
 
@@ -206,10 +206,11 @@ class MapCashTest {
 
     @Test
     void testPutObjectWhenObjectIsNull() {
-        String testObject = "Object will put to cash";
-        mapCash.putObject(testObject);
-        assumeTrue(mapCash.getObjectsList().containsKey(testObject),
-                "Assumption null object is in list");
+        String testObject = null;
+        Exception exception = assertThrows(NullPointerException.class, () ->
+                mapCash.putObject(testObject));
+        assertEquals("Cash object cannot be null",
+                exception.getMessage());
     }
 
     @Test
@@ -234,9 +235,9 @@ class MapCashTest {
     void testGetObjectWhenNullParameterObject() {
         String testObject = "Object will put to cash";
         mapCash.putObject(testObject);
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(NullPointerException.class, () ->
                 mapCash.getObject(null));
-        assertEquals("Cash query parameter cannot be null", exception.getMessage().trim());
+        assertEquals("Cash query parameter cannot be null", exception.getMessage());
     }
 
     @Test
@@ -245,7 +246,7 @@ class MapCashTest {
             mapCash.putObject(s);
         }
         String expectedObject = objectList.get(0);
-        String actualObject = mapCash.getObject(new CashQueryParameters()).get();
+        String actualObject = mapCash.getObject(new CashQueryParameters());
         assertEquals(expectedObject, actualObject,
                 "Assumption getting first object from list");
     }
@@ -265,7 +266,7 @@ class MapCashTest {
             mapCash.putObject(s);
         }
         String expectedObject = objectList.get(arguments.getInteger(0));
-        String actualObject = mapCash.getObject(new CashQueryParameters(arguments.getBoolean(1))).get();
+        String actualObject = mapCash.getObject(new CashQueryParameters(arguments.getBoolean(1)));
         assertEquals(expectedObject, actualObject,
                 "Assumption getting object from cash");
     }
@@ -275,7 +276,7 @@ class MapCashTest {
         Exception exception = assertThrows(NotInCashException.class, () ->
                 mapCash.getObject(new CashQueryParameters()));
         assertEquals("Object's list is empty. Cannot get object from list",
-                exception.getMessage().trim());
+                exception.getMessage());
     }
 
     @Test
@@ -343,8 +344,8 @@ class MapCashTest {
         for (String s:objectList) {
             mapCash.putObject(s);
         }
-        long expectedTime = System.currentTimeMillis();
         mapCash.clear();
+        long expectedTime = System.currentTimeMillis();
         long actualCurrentTime = mapCash.getCurrentTime();
         assertEquals(expectedTime, actualCurrentTime,
                 "Assertion current time after cash clearing");
@@ -363,7 +364,7 @@ class MapCashTest {
     }
 
     @Test
-    void testUpdateObjectTimeShouldUpdateTimeInMap() {
+    void testUpdateObjectAddingTimeShouldUpdateTimeInMap() {
         for (String s:objectList) {
             mapCash.putObject(s);
         }
@@ -379,7 +380,7 @@ class MapCashTest {
     }
 
     @Test
-    void testUpdateObjectTimeShouldObjectInsertToEndOfList() {
+    void testUpdateObjectAddingTimeShouldObjectInsertToEndOfList() {
         for (String s:objectList) {
             mapCash.putObject(s);
         }
@@ -397,5 +398,27 @@ class MapCashTest {
                 .getKey();
         assertEquals(expectedObject, actualObject,
                 "Assumption updating object in list");
+    }
+
+    @Test
+    void testUpdateObjectAddingTimeWhenNullObject() {
+        for (String s:objectList) {
+            mapCash.putObject(s);
+        }
+        String nullObject = null;
+        Exception exception = assertThrows(NullPointerException.class, () ->
+                mapCash.updateObjectAddingTime(nullObject));
+        assertEquals("Cash object cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateObjectAddingTimeWhenObjectIsNotInCash() {
+        for (String s:objectList) {
+            mapCash.putObject(s);
+        }
+        String object = "Not in cash";
+        Exception exception = assertThrows(NotInCashException.class, () ->
+                mapCash.updateObjectAddingTime(object));
+        assertEquals("Object not found in cache", exception.getMessage());
     }
 }

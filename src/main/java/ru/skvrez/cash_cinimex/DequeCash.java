@@ -52,27 +52,40 @@ public class DequeCash<T> extends AbstractCash<T> {
 
     @Override
     public void putObject(T object) {
+        super.putObject(object);
         updateCurrentTime();
         deleteIfPresent(object);
         Node node = new Node(object, currentTime);
         objectsDeque.add(node);
     }
 
+    private T returnEldestObject(){
+        return objectsDeque.peekFirst().getObject();
+    }
+
+    private T returnNewestObject(){
+        return objectsDeque.peekLast().getObject();
+    }
+
+    private T processCashQueryParameters(CashQueryParameters parameters){
+        T object = null;
+        if (parameters.isOldestElement()) {
+            object = returnEldestObject();
+        } else {
+            object = returnNewestObject();
+        }
+        return object;
+    }
+
     @Override
-    public Optional<T> getObject(CashQueryParameters parameters) {
+    public T getObject(CashQueryParameters parameters) {
         if (parameters == null) {
-            throw new IllegalArgumentException("Cash query parameter cannot be null");
+            throw new NullPointerException("Cash query parameter cannot be null");
         }
         if (objectsDeque.isEmpty()) {
             throw new NotInCashException("Object's list is empty. Cannot get object from list");
         }
-        T object = null;
-        if (parameters.isOldestElement()) {
-            object = objectsDeque.peekFirst().getObject();
-        } else {
-            object = objectsDeque.peekLast().getObject();
-        }
-        return Optional.of(object);
+        return processCashQueryParameters(parameters);
     }
 
     @Override
@@ -111,16 +124,17 @@ public class DequeCash<T> extends AbstractCash<T> {
     }
 
     @Override
-    public void updateObjectAddingTime(T object) throws NotInCashException {
+    public void updateObjectAddingTime(T object){
+        super.updateObjectAddingTime(object);
         if (!deleteIfPresent(object)) {
-            throw new NotInCashException();
+            throw new NotInCashException("Object not found in cache");
         } else {
             Node node = new Node(object, currentTime);
             objectsDeque.add(node);
         }
     }
 
-    private Node findObjectNode(T object) {
+    Node findObjectNode(T object) {
         Node result = null;
         for (Node node : objectsDeque) {
             if (node.getObject().equals(object)) {

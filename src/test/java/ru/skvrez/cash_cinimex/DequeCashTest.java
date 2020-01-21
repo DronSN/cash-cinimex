@@ -71,16 +71,16 @@ class DequeCashTest {
 
     @Test
     void testConstructorWhenItHaveNullUnitParameter() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(NullPointerException.class, () ->
                 new MapCash<>(1, null));
-        assertEquals("Time units can not be null.", exception.getMessage().trim());
+        assertEquals("Time units can not be null.", exception.getMessage());
     }
 
     @Test
     void testConstructorWhenItHaveNegativeTimeParameter() {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 new MapCash<>(-1, TimeUnits.MILLISECONDS));
-        assertEquals("Time can not be negative.", exception.getMessage().trim());
+        assertEquals("Time can not be negative.", exception.getMessage());
     }
 
     @Test
@@ -128,9 +128,9 @@ class DequeCashTest {
 
     @Test
     void testUpdateTimeToLiveWhenUsedNullTimeUnitParameter() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(NullPointerException.class, () ->
                 dequeCash.updateTimeToLive(1, null));
-        assertEquals("Time units can not be null.", exception.getMessage().trim());
+        assertEquals("Time units can not be null.", exception.getMessage());
     }
 
     @Test
@@ -146,7 +146,7 @@ class DequeCashTest {
     void testUpdateTimeToLiveWhenNegativeTimeParameter() {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 dequeCash.updateTimeToLive(-1, TimeUnits.MILLISECONDS));
-        assertEquals("Time can not be negative.", exception.getMessage().trim());
+        assertEquals("Time can not be negative.", exception.getMessage());
     }
 
     @Test
@@ -172,7 +172,7 @@ class DequeCashTest {
     void testUpdateCheckTimeWhenNegativeTimeParameter() {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 dequeCash.updateCheckTime(-1));
-        assertEquals("Parameter checkTime cannot be negative", exception.getMessage().trim());
+        assertEquals("Parameter checkTime cannot be negative", exception.getMessage());
     }
 
 
@@ -210,16 +210,17 @@ class DequeCashTest {
     void testPutObjectWhenObjectIsValid() {
         String testObject = "Object will put to cash";
         dequeCash.putObject(testObject);
-        assumeTrue(dequeCash.getObjectsList().contains(testObject),
+        assumeTrue(dequeCash.findObjectNode(testObject).getObject().equals(testObject),
                 "Assumption object is in list");
     }
 
     @Test
     void testPutObjectWhenObjectIsNull() {
-        String testObject = "Object will put to cash";
-        dequeCash.putObject(testObject);
-        assumeTrue(dequeCash.getObjectsList().contains(testObject),
-                "Assumption null object is in list");
+        String testObject = null;
+        Exception exception = assertThrows(NullPointerException.class, () ->
+                dequeCash.putObject(testObject));
+        assertEquals("Cash object cannot be null",
+                exception.getMessage());
     }
 
     @Test
@@ -242,9 +243,9 @@ class DequeCashTest {
     void testGetObjectWhenNullParameterObject() {
         String testObject = "Object will put to cash";
         dequeCash.putObject(testObject);
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(NullPointerException.class, () ->
                 dequeCash.getObject(null));
-        assertEquals("Cash query parameter cannot be null", exception.getMessage().trim());
+        assertEquals("Cash query parameter cannot be null", exception.getMessage());
     }
 
     @Test
@@ -253,7 +254,7 @@ class DequeCashTest {
             dequeCash.putObject(s);
         }
         String expectedObject = objectList.get(0);
-        String actualObject = dequeCash.getObject(new CashQueryParameters()).get();
+        String actualObject = dequeCash.getObject(new CashQueryParameters());
         assertEquals(expectedObject, actualObject,
                 "Assumption getting first object from list");
     }
@@ -273,7 +274,7 @@ class DequeCashTest {
             dequeCash.putObject(s);
         }
         String expectedObject = objectList.get(arguments.getInteger(0));
-        String actualObject = dequeCash.getObject(new CashQueryParameters(arguments.getBoolean(1))).get();
+        String actualObject = dequeCash.getObject(new CashQueryParameters(arguments.getBoolean(1)));
         assertEquals(expectedObject, actualObject,
                 "Assumption getting object from cash");
     }
@@ -283,7 +284,7 @@ class DequeCashTest {
         Exception exception = assertThrows(NotInCashException.class, () ->
                 dequeCash.getObject(new CashQueryParameters()));
         assertEquals("Object's list is empty. Cannot get object from list",
-                exception.getMessage().trim());
+                exception.getMessage());
     }
 
     @Test
@@ -371,7 +372,7 @@ class DequeCashTest {
     }
 
     @Test
-    void testUpdateObjectTimeShouldUpdateTimeInList() {
+    void testUpdateObjectAddingTimeShouldUpdateTimeInList() {
         for (String s : objectList) {
             dequeCash.putObject(s);
         }
@@ -387,7 +388,7 @@ class DequeCashTest {
     }
 
     @Test
-    void testUpdateObjectTimeShouldObjectInsertToEndOfList() {
+    void testUpdateObjectAddingTimeShouldObjectInsertToEndOfList() {
         for (String s : objectList) {
             dequeCash.putObject(s);
         }
@@ -404,5 +405,26 @@ class DequeCashTest {
         }
         assertEquals(expectedObject, actualObject,
                 "Assumption updating object in list");
+    }
+    @Test
+    void testUpdateObjectAddingTimeWhenNullObject() {
+        for (String s:objectList) {
+            dequeCash.putObject(s);
+        }
+        String nullObject = null;
+        Exception exception = assertThrows(NullPointerException.class, () ->
+                dequeCash.updateObjectAddingTime(nullObject));
+        assertEquals("Cash object cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateObjectAddingTimeWhenObjectIsNotInCash() {
+        for (String s:objectList) {
+            dequeCash.putObject(s);
+        }
+        String object = "Not in cash";
+        Exception exception = assertThrows(NotInCashException.class, () ->
+                dequeCash.updateObjectAddingTime(object));
+        assertEquals("Object not found in cache", exception.getMessage());
     }
 }

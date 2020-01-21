@@ -39,18 +39,11 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
     }
 
     private void timeToLiveValidating(long time, TimeUnits units) {
-        StringBuilder exceptionOutput = new StringBuilder();
-        boolean isWrong = false;
-        if (units == null) {
-            exceptionOutput.append("Time units can not be null. ");
-            isWrong = true;
+        if (units==null){
+            throw new NullPointerException("Time units can not be null.");
         }
         if (time < 0) {
-            exceptionOutput.append("Time can not be negative.");
-            isWrong = true;
-        }
-        if (isWrong) {
-            throw new IllegalArgumentException(exceptionOutput.toString());
+            throw new IllegalArgumentException("Time can not be negative.");
         }
     }
 
@@ -63,10 +56,14 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
     }
 
     @Override
-    abstract public void putObject(T object);
+    public void putObject(T object){
+        if (object == null){
+            throw new NullPointerException("Cash object cannot be null");
+        }
+    }
 
     @Override
-    abstract public Optional<T> getObject(CashQueryParameters parameters);
+    abstract public T getObject(CashQueryParameters parameters);
 
     @Override
     abstract public void deleteOldObjects();
@@ -81,7 +78,11 @@ abstract class AbstractCash<T> implements Cashable<T>, Observer {
     abstract public void clear();
 
     @Override
-    abstract public void updateObjectAddingTime(T object) throws NotInCashException;
+    public void updateObjectAddingTime(T object){
+        if (object == null){
+            throw new NullPointerException("Cash object cannot be null");
+        }
+    }
 
     @Override
     public void update(Observable arg0, Object arg1) {

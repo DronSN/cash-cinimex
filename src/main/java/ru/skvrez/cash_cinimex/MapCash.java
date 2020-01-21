@@ -24,6 +24,7 @@ public class MapCash<T> extends AbstractCash<T> {
 
     @Override
     public void putObject(T object) {
+        super.putObject(object);
         updateCurrentTime();
         if (objectsList.containsKey(object)) {
             objectsList.remove(object);
@@ -31,30 +32,42 @@ public class MapCash<T> extends AbstractCash<T> {
         objectsList.put(object, currentTime);
     }
 
+    private T returnEldestObject(){
+        return objectsList.entrySet()
+                .stream()
+                .findFirst()
+                .get()
+                .getKey();
+    }
+
+    private T returnNewestObject(){
+        return objectsList.entrySet()
+                .stream()
+                .skip(objectsList.entrySet().size() - 1)
+                .findFirst()
+                .get()
+                .getKey();
+    }
+
+    private T processCashQueryParameters(CashQueryParameters parameters){
+        T object = null;
+        if (parameters.isOldestElement()) {
+            object = returnEldestObject();
+        } else {
+            object = returnNewestObject();
+        }
+        return object;
+    }
+
     @Override
-    public Optional<T> getObject(CashQueryParameters parameters) {
+    public T getObject(CashQueryParameters parameters) {
         if (parameters == null) {
-            throw new IllegalArgumentException("Cash query parameter cannot be null");
+            throw new NullPointerException("Cash query parameter cannot be null");
         }
         if (objectsList.isEmpty()) {
             throw new NotInCashException("Object's list is empty. Cannot get object from list");
         }
-        T object = null;
-        if (parameters.isOldestElement()) {
-            object = objectsList.entrySet()
-                    .stream()
-                    .findFirst()
-                    .get()
-                    .getKey();
-        } else {
-            object = objectsList.entrySet()
-                    .stream()
-                    .skip(objectsList.entrySet().size() - 1)
-                    .findFirst()
-                    .get()
-                    .getKey();
-        }
-        return Optional.of(object);
+        return processCashQueryParameters(parameters);
     }
 
     @Override
@@ -75,7 +88,8 @@ public class MapCash<T> extends AbstractCash<T> {
     }
 
     @Override
-    public void updateObjectAddingTime(T object) throws NotInCashException {
+    public void updateObjectAddingTime(T object){
+        super.updateObjectAddingTime(object);
         if (objectsList.containsKey(object)) {
             putObject(object);
         } else {
