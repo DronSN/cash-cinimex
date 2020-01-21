@@ -90,8 +90,8 @@ class MapCashTest {
 
     @Test
     void testUpdateCurrentTimeWhenItChangedAfterPause(){
-        long expectedCurrentTime = System.currentTimeMillis();
         mapCash.updateCurrentTime();
+        long expectedCurrentTime = mapCash.getCurrentTime();
         try {
             Thread.sleep(1);
         } catch(InterruptedException ex) {}
@@ -288,7 +288,6 @@ class MapCashTest {
             Thread.sleep(10);
         } catch(InterruptedException ex) {
         }
-
         for (int i = 5; i < 10; i++) {
             mapCash.putObject(objectList.get(i));
         }
@@ -307,24 +306,25 @@ class MapCashTest {
         actualObjectsCount = mapCash.getObjectsList().size();
         assertEquals(expectedObjectsCount,actualObjectsCount,
                 "Assertion number of objects in empty cash");
-
     }
 
     @Test
     void testDeleteOldObjectsShouldUpdateCurrentTime(){
-        long expectedTime = System.currentTimeMillis();
-        mapCash.deleteOldObjects();
+    	long startTime = System.currentTimeMillis();
+    	mapCash.deleteOldObjects();
+    	long finishTime = System.currentTimeMillis();    
         long actualCurrentTime = mapCash.getCurrentTime();
-        assertEquals(expectedTime, actualCurrentTime,
+        assumeTrue(actualCurrentTime >= startTime && actualCurrentTime <= finishTime,
                 "Assertion current time after deleting elder objects");
     }
 
     @Test
     void testDeleteOldObjectsShouldChangedLastUpdateTime(){
-        long expectedLastUpdateTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         mapCash.deleteOldObjects();
+        long finishTime = System.currentTimeMillis();
         long actualLastUpdateTime = mapCash.getLastUpdate();
-        assertEquals(expectedLastUpdateTime, actualLastUpdateTime,
+        assumeTrue(actualLastUpdateTime >= startTime && actualLastUpdateTime <= finishTime,
                 "Assertion last update time after deleting elder objects");
     }
 
@@ -344,10 +344,11 @@ class MapCashTest {
         for (String s:objectList) {
             mapCash.putObject(s);
         }
+        long startTime = System.currentTimeMillis();
         mapCash.clear();
-        long expectedTime = System.currentTimeMillis();
+        long finishTime = System.currentTimeMillis();
         long actualCurrentTime = mapCash.getCurrentTime();
-        assertEquals(expectedTime, actualCurrentTime,
+        assumeTrue(actualCurrentTime >= startTime && actualCurrentTime <= finishTime,
                 "Assertion current time after cash clearing");
     }
 
@@ -356,10 +357,11 @@ class MapCashTest {
         for (String s:objectList) {
             mapCash.putObject(s);
         }
-        long expectedLastUpdateTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         mapCash.clear();
+        long finishTime = System.currentTimeMillis();
         long actualLastUpdateTime = mapCash.getLastUpdate();
-        assertEquals(expectedLastUpdateTime, actualLastUpdateTime,
+        assumeTrue(actualLastUpdateTime >= startTime && actualLastUpdateTime <= finishTime,
                 "Assertion last update time after cash clearing");
     }
 
